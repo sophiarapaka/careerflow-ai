@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% block title %}Applications for {{ job.title }} — CareerAssist{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="container">
+        <h1>
+            <i class="bi bi-people me-2"></i>
+            Applications for "{{ job.title }}"
+        </h1>
+
+        <p class="mb-0 opacity-75">
+            {{ job.company }} • {{ job.location }} • {{ total }} applicant{{ total|pluralize }}
+        </p>
+    </div>
+</div>
+
+
+<div class="container">
+
+<!-- FILTERS -->
+
+<div class="card-modern p-3 mb-4">
+
+<form method="get" class="row g-3 align-items-end">
+
+<div class="col-md-4">
+
+<label class="form-label fw-semibold">Min Match Score</label>
+
+<input
+type="number"
+name="min_score"
+class="form-control"
+value="{{ min_score }}"
+placeholder="e.g. 50"
+min="0"
+max="100">
+
+</div>
+
+
+<div class="col-md-4">
+
+<label class="form-label fw-semibold">Filter by Skill</label>
+
+<input
+type="text"
+name="skill"
+class="form-control"
+value="{{ skill_filter }}"
+placeholder="e.g. Python">
+
+</div>
+
+
+<div class="col-md-4">
+
+<button class="btn btn-primary-custom w-100">
+
+<i class="bi bi-funnel me-2"></i>
+Filter
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+
+
+<!-- REQUIRED SKILLS -->
+
+<div class="mb-4">
+
+<span class="fw-semibold me-2">Required Skills:</span>
+
+{% for s in job_skills %}
+<span class="badge badge-skill badge-info">{{ s }}</span>
+{% endfor %}
+
+</div>
+
+
+
+{% if app_data %}
+
+{% for item in app_data %}
+
+<div class="card-modern p-4 mb-3">
+
+<div class="row align-items-center">
+
+
+<!-- CANDIDATE INFO -->
+
+<div class="col-md-3">
+
+<h6 class="fw-bold mb-1">
+
+{{ item.application.user.get_full_name|default:item.application.user.username }}
+
+</h6>
+
+<small class="text-muted">
+
+{{ item.application.user.email }}
+
+</small>
+
+
+<div class="mt-1">
+
+<span class="badge bg-{% if item.application.status == 'shortlisted' %}success{% elif item.application.status == 'rejected' %}danger{% elif item.application.status == 'reviewed' %}info{% else %}secondary{% endif %}">
+
+{{ item.application.get_status_display }}
+
+</span>
+
+</div>
+
+</div>
+
+
+
+<!-- MATCH SCORE -->
+
+<div class="col-md-3">
+
+<div class="text-center">
+
+<div class="fw-bold fs-4
+{% if item.application.match_score >= 70 %}
+text-success
+{% elif item.application.match_score >= 40 %}
+text-warning
+{% else %}
+text-danger
+{% endif %}
+">
+
+{{ item.application.match_score }}%
+
+</div>
+
+<small class="text-muted">Match Score</small>
+
+<div class="match-bar mt-1">
+
+<div
+class="match-bar-fill
+{% if item.application.match_score >= 70 %}
+bg-success
+{% elif item.application.match_score >= 40 %}
+bg-warning
+{% else %}
+bg-danger
+{% endif %}"
+
+style="width:{{ item.application.match_score }}%">
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- RESUME SKILLS -->
+
+<div class="col-md-3">
+
+<small class="fw-semibold d-block mb-1">
+
+Resume Score: {{ item.score }}/100
+
+{% if item.missing_skills %}
+<div class="mt-1">
+
+<small class="text-danger fw-semibold">
+⚠ Missing Skills:
+</small>
+
+{% for skill in item.missing_skills|slice:":3" %}
+<span class="badge bg-light text-danger border">
+{{ skill }}
+</span>
+{% endfor %}
+
+</div>
+{% endif %}
+
+</small>
+
+<div class="mb-1">
+
+{% for s in item.user_skills|slice:":6" %}
+
+<span
+class="badge badge-skill
+{% if s|lower in job_skills_lower %}
+badge-match
+{% else %}
+badge-info
+{% endif %}"
+
+style="font-size:0.7rem">
+
+{{ s }}
+
+</span>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+
+
+<!-- RECRUITER ACTIONS -->
+
+<div class="col-md-3 text-end">
+
+
+<div class="btn-group btn-group-sm mb-2">
+
+<a
+href="{% url 'update_application_status' item.application.pk 'shortlisted' %}"
+class="btn btn-outline-success"
+title="Shortlist">
+
+<i class="bi bi-check-lg"></i>
+
+</a>
+
+
+<a
+href="{% url 'update_application_status' item.application.pk 'reviewed' %}"
+class="btn btn-outline-info"
+title="Mark Reviewed">
+
+<i class="bi bi-eye"></i>
+
+</a>
+
+
+<a
+href="{% url 'update_application_status' item.application.pk 'rejected' %}"
+class="btn btn-outline-danger"
+title="Reject">
+
+<i class="bi bi-x-lg"></i>
+
+</a>
+
+</div>
+
+
+
+<!-- DOWNLOAD RESUME BUTTON -->
+
+{% if item.application.resume %}
+
+<a
+href="{{ item.application.resume.uploaded_file.url }}"
+target="_blank"
+class="btn btn-sm btn-outline-secondary">
+
+<i class="bi bi-download"></i>
+Download Resume
+
+</a>
+
+{% endif %}
+
+
+
+<small class="text-muted d-block mt-1">
+
+{{ item.application.applied_at|date:"M d, Y" }}
+
+</small>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+
+
+{% else %}
+
+<div class="text-center py-5">
+
+<i class="bi bi-inbox display-1 text-muted"></i>
+
+<h4 class="mt-3 text-muted">
+
+No applications {% if min_score or skill_filter %}matching your filters{% endif %}
+
+</h4>
+
+</div>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

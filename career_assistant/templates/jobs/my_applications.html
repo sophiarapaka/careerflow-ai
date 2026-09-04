@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}My Applications - CareerAssist{% endblock %}
+{% block content %}
+<h3 class="fw-bold mb-4"><i class="bi bi-send-check me-2"></i>My Applications</h3>
+
+<div class="row g-4">
+    {% for app in applications %}
+    <div class="col-md-6">
+        <div class="card card-custom p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold mb-0">{{ app.job.title }}</h5>
+                <span class="badge {% if app.status == 'applied' %}bg-primary{% elif app.status == 'shortlisted' %}bg-success{% elif app.status == 'rejected' %}bg-danger{% else %}bg-info{% endif %}">{{ app.get_status_display }}</span>
+            </div>
+            <p class="text-muted mb-2"><i class="bi bi-building me-1"></i>{{ app.job.company }} &bull; <i class="bi bi-geo-alt me-1"></i>{{ app.job.location }}</p>
+            <div class="d-flex justify-content-between">
+                <small class="text-muted">Applied: {{ app.applied_at|date:"M d, Y" }}</small>
+                <small class="fw-semibold">Match: {{ app.match_score }}%</small>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="bi bi-send" style="font-size: 3rem; color: #667eea;"></i>
+        <p class="mt-2 text-muted">No applications yet</p>
+        <a href="{% url 'job_list' %}" class="btn btn-gradient">Browse Jobs</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

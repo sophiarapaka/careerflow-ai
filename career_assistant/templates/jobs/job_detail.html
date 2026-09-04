@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} — CareerAssist{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+<div class="container">
+
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb mb-2" style="--bs-breadcrumb-divider-color:rgba(255,255,255,0.5)">
+<li class="breadcrumb-item">
+<a href="{% url 'job_list' %}" class="text-white text-decoration-none opacity-75">
+Jobs
+</a>
+</li>
+<li class="breadcrumb-item active text-white">
+{{ job.title }}
+</li>
+</ol>
+</nav>
+
+<h1>{{ job.title }}</h1>
+
+<p class="mb-0 opacity-75">
+<i class="bi bi-building me-1"></i>{{ job.company }}
+·
+<i class="bi bi-geo-alt me-1"></i>{{ job.location }}
+</p>
+
+</div>
+</div>
+
+
+<div class="container">
+<div class="row g-4">
+
+
+<!-- MAIN SECTION -->
+
+<div class="col-lg-8">
+
+
+<div class="card-modern p-4 mb-4">
+
+<h5 class="section-title">Job Description</h5>
+
+<p style="white-space:pre-line">
+{{ job.description }}
+</p>
+
+</div>
+
+
+{% if job.requirements %}
+<div class="card-modern p-4 mb-4">
+
+<h5 class="section-title">Requirements</h5>
+
+<p style="white-space:pre-line">
+{{ job.requirements }}
+</p>
+
+</div>
+{% endif %}
+
+
+
+<!-- SKILL MATCH ANALYSIS -->
+
+<div class="card-modern p-4">
+
+<h5 class="section-title">Skill Match Analysis</h5>
+
+<div class="text-center mb-4">
+
+<div class="score-circle mx-auto
+{% if match_pct >= 70 %}score-high
+{% elif match_pct >= 40 %}score-mid
+{% else %}score-low
+{% endif %}"
+style="width:110px;height:110px;font-size:1.6rem">
+
+{{ match_pct }}%
+
+</div>
+
+<p class="text-muted mt-2">
+compatibility with your resume
+</p>
+
+</div>
+
+
+<div class="row">
+
+
+<!-- MATCHING SKILLS -->
+
+<div class="col-md-6 mb-3">
+
+<h6 class="fw-bold text-success">
+<i class="bi bi-check-circle me-1"></i>
+Matching Skills
+</h6>
+
+{% for s in matching_skills %}
+<span class="badge badge-skill badge-match">{{ s }}</span>
+{% empty %}
+<span class="text-muted">None</span>
+{% endfor %}
+
+</div>
+
+
+
+<!-- MISSING SKILLS -->
+
+<div class="col-md-6 mb-3">
+
+<h6 class="fw-bold text-danger">
+<i class="bi bi-x-circle me-1"></i>
+Missing Skills
+</h6>
+
+{% for s in missing_skills %}
+<span class="badge badge-skill badge-miss">{{ s }}</span>
+{% empty %}
+<span class="text-muted">None</span>
+{% endfor %}
+
+</div>
+
+</div>
+
+
+
+<!-- CERTIFICATION SUGGESTIONS -->
+
+{% if certifications %}
+
+<div class="mt-4">
+
+<h6 class="fw-bold text-primary mb-3">
+<i class="bi bi-award me-1"></i>
+Recommended Certifications
+</h6>
+
+<div class="row g-3">
+
+{% for cert in certifications %}
+
+<div class="col-md-6">
+
+<div class="p-3 border rounded-3 shadow-sm bg-light h-100">
+
+<h6 class="fw-semibold mb-2">{{ cert.skill }}</h6>
+
+<div class="d-flex gap-2">
+
+<a href="{{ cert.coursera }}"
+target="_blank"
+class="btn btn-sm btn-primary">
+
+<i class="bi bi-mortarboard-fill me-1"></i>
+Coursera
+
+</a>
+
+<a href="{{ cert.udemy }}"
+target="_blank"
+class="btn btn-sm btn-success">
+
+<i class="bi bi-play-circle-fill me-1"></i>
+Free Udemy
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+{% endif %}
+
+
+
+<!-- LEARNING PATH SECTION -->
+
+{% if learning_path %}
+
+<div class="mt-4">
+
+<h6 class="fw-bold text-info mb-3">
+<i class="bi bi-diagram-3 me-1"></i>
+Recommended Learning Path
+</h6>
+
+{% for item in learning_path %}
+
+<div class="p-3 border rounded-3 mb-2 bg-light">
+
+<strong>Step {{ item.step }}</strong>
+
+<br>
+
+Learn <b>{{ item.skill }}</b>
+
+<br>
+
+<a href="{{ item.course }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+Start Course
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endif %}
+
+</div>
+</div>
+
+
+
+<!-- SIDEBAR -->
+
+<div class="col-lg-4">
+
+
+<div class="card-modern p-4 mb-4">
+
+<h5 class="fw-bold mb-3">
+Job Overview
+</h5>
+
+<div class="py-2 border-bottom d-flex justify-content-between">
+<span class="text-muted">
+<i class="bi bi-briefcase me-2"></i>Type
+</span>
+<span class="fw-semibold">
+{{ job.get_job_type_display }}
+</span>
+</div>
+
+{% if job.salary %}
+<div class="py-2 border-bottom d-flex justify-content-between">
+<span class="text-muted">
+<i class="bi bi-currency-rupee me-2"></i>Salary
+</span>
+<span class="fw-semibold">
+{{ job.salary }}
+</span>
+</div>
+{% endif %}
+
+{% if job.experience %}
+<div class="py-2 border-bottom d-flex justify-content-between">
+<span class="text-muted">
+<i class="bi bi-clock me-2"></i>Experience
+</span>
+<span class="fw-semibold">
+{{ job.experience }}
+</span>
+</div>
+{% endif %}
+
+<div class="py-2 d-flex justify-content-between">
+<span class="text-muted">
+<i class="bi bi-geo-alt me-2"></i>Location
+</span>
+<span class="fw-semibold">
+{{ job.location }}
+</span>
+</div>
+
+</div>
+
+
+
+<div class="card-modern p-4 mb-4">
+
+<h5 class="fw-bold mb-3">
+Required Skills
+</h5>
+
+{% for s in job_skills %}
+<span class="badge badge-skill badge-info">
+{{ s }}
+</span>
+{% endfor %}
+
+</div>
+
+
+
+{% if has_applied %}
+
+<div class="alert alert-success rounded-3">
+<i class="bi bi-check-circle me-2"></i>
+You have applied for this job
+</div>
+
+{% elif has_resume %}
+
+<a href="{% url 'apply_job' job.pk %}"
+class="btn btn-primary-custom w-100 py-3">
+
+<i class="bi bi-send me-2"></i>
+Apply Now
+
+</a>
+
+{% else %}
+
+<a href="{% url 'upload_resume' %}"
+class="btn btn-warning w-100 py-3 fw-semibold rounded-3">
+
+<i class="bi bi-cloud-upload me-2"></i>
+Upload Resume First
+
+</a>
+
+{% endif %}
+
+</div>
+
+</div>
+</div>
+
+{% endblock %}

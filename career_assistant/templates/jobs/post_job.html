@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{% if editing %}Edit Job{% else %}Post Job{% endif %} — CareerAssist{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1><i class="bi bi-{% if editing %}pencil-square{% else %}plus-circle{% endif %} me-2"></i>{% if editing %}Edit Job{% else %}Post New Job{% endif %}</h1>
+        <p class="mb-0 opacity-75">{% if editing %}Update the job details below{% else %}Fill in the details to post a new job opening{% endif %}</p>
+    </div>
+</div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card-modern p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %}
+                        {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" class="btn btn-primary-custom px-4 py-2"><i class="bi bi-check-lg me-2"></i>{% if editing %}Update Job{% else %}Post Job{% endif %}</button>
+                        <a href="{% url 'my_posted_jobs' %}" class="btn btn-outline-secondary px-4 py-2 rounded-3">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

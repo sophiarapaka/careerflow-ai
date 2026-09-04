@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CareerAssist{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1><i class="bi bi-grid-fill me-2"></i>Dashboard</h1>
+        <p class="mb-0 opacity-75">Welcome back, {{ request.user.get_full_name|default:request.user.username }}!</p>
+    </div>
+</div>
+<div class="container">
+    <!-- Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background:#EEF2FF;color:#4F46E5"><i class="bi bi-file-earmark-text"></i></div>
+                    <div>
+                        <div class="stat-value">{{ total_resumes }}</div>
+                        <div class="stat-label">Total Resumes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background:#D1FAE5;color:#059669"><i class="bi bi-graph-up-arrow"></i></div>
+                    <div>
+                        <div class="stat-value">{{ avg_score }}<small class="fs-6 text-muted">/100</small></div>
+                        <div class="stat-label">Average Score</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background:#FEF3C7;color:#D97706"><i class="bi bi-bullseye"></i></div>
+                    <div>
+                        <div class="stat-value">{{ matched_jobs }}</div>
+                        <div class="stat-label">Jobs Matched</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Quick Actions -->
+        <div class="col-md-8">
+            <div class="card-modern p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-lightning-fill text-warning me-2"></i>Quick Actions</h5>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <a href="{% url 'upload_resume' %}" class="btn btn-primary-custom w-100 py-3">
+                            <i class="bi bi-cloud-upload me-2"></i>Upload Resume
+                        </a>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="{% url 'job_list' %}" class="btn btn-outline-primary w-100 py-3 rounded-3 fw-semibold">
+                            <i class="bi bi-search me-2"></i>Find Jobs
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if latest_resume %}
+            <div class="card-modern p-4 mt-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-check me-2" style="color:#4F46E5"></i>Latest Resume</h5>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <p class="mb-1 fw-semibold">{{ latest_resume.uploaded_file.name|cut:"resumes/" }}</p>
+                        <small class="text-muted">Uploaded {{ latest_resume.uploaded_at|timesince }} ago</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="text-center">
+                            <div class="fw-bold fs-4 {% if latest_resume.resume_score >= 70 %}text-success{% elif latest_resume.resume_score >= 40 %}text-warning{% else %}text-danger{% endif %}">{{ latest_resume.resume_score }}%</div>
+                            <small class="text-muted">Score</small>
+                        </div>
+                        <a href="{% url 'resume_report' latest_resume.pk %}" class="btn btn-sm btn-primary-custom">View Report</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <div class="card-modern p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-clock-history me-2" style="color:#4F46E5"></i>Recent Resumes</h5>
+                {% if resumes %}
+                    {% for r in resumes|slice:":5" %}
+                    <div class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                        <div>
+                            <small class="fw-semibold d-block">{{ r.uploaded_file.name|cut:"resumes/" }}</small>
+                            <small class="text-muted">{{ r.uploaded_at|date:"M d, Y" }}</small>
+                        </div>
+                        <a href="{% url 'resume_report' r.pk %}" class="badge badge-skill badge-info text-decoration-none">{{ r.resume_score }}%</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-3 mb-0"><i class="bi bi-inbox display-6 d-block mb-2"></i>No resumes yet</p>
+                {% endif %}
+            </div>
+
+            <div class="card-modern p-4 mt-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart me-2" style="color:#4F46E5"></i>Stats</h5>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Applications</span>
+                    <span class="fw-bold">{{ total_applied }}</span>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span class="text-muted">Jobs Matched</span>
+                    <span class="fw-bold">{{ matched_jobs }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

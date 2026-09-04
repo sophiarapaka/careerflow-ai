@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}My Posted Jobs — CareerAssist{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="bi bi-collection me-2"></i>My Posted Jobs</h1>
+                <p class="mb-0 opacity-75">Manage your job postings</p>
+            </div>
+            <a href="{% url 'post_job' %}" class="btn btn-light rounded-pill px-4 fw-semibold"><i class="bi bi-plus-circle me-2"></i>Post New Job</a>
+        </div>
+    </div>
+</div>
+<div class="container">
+    {% if job_data %}
+    <div class="row g-4">
+        {% for item in job_data %}
+        <div class="col-md-6">
+            <div class="card-modern p-4 job-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h5 class="fw-bold mb-1">{{ item.job.title }}</h5>
+                        <p class="text-muted mb-1"><i class="bi bi-building me-1"></i>{{ item.job.company }} &bull; <i class="bi bi-geo-alt me-1"></i>{{ item.job.location }}</p>
+                    </div>
+                    <span class="badge {% if item.job.is_active %}bg-success{% else %}bg-secondary{% endif %}">{% if item.job.is_active %}Active{% else %}Closed{% endif %}</span>
+                </div>
+                {% if item.job.salary %}<p class="mb-2"><i class="bi bi-currency-rupee me-1"></i><strong>{{ item.job.salary }}</strong></p>{% endif %}
+                <div class="mb-3">
+                    {% for skill in item.skills %}
+                    <span class="badge badge-skill badge-info">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted"><i class="bi bi-people me-1"></i>{{ item.app_count }} application{{ item.app_count|pluralize }}</span>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'job_applications' item.job.pk %}" class="btn btn-sm btn-primary-custom"><i class="bi bi-people me-1"></i>View Applicants</a>
+                        <a href="{% url 'edit_job' item.job.pk %}" class="btn btn-sm btn-outline-primary rounded-3"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'toggle_job' item.job.pk %}" class="btn btn-sm btn-outline-{% if item.job.is_active %}danger{% else %}success{% endif %} rounded-3"><i class="bi bi-{% if item.job.is_active %}pause{% else %}play{% endif %}-circle"></i></a>
+                    </div>
+                </div>
+                <small class="text-muted d-block mt-2">Posted {{ item.job.created_at|timesince }} ago</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-briefcase display-1 text-muted"></i>
+        <h4 class="mt-3 text-muted">No jobs posted yet</h4>
+        <a href="{% url 'post_job' %}" class="btn btn-primary-custom mt-3"><i class="bi bi-plus-circle me-2"></i>Post Your First Job</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
