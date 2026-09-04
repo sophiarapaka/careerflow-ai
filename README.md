@@ -40,3 +40,50 @@ python manage.py runserver
 * Real-time job recommendations
 * Email notifications
 * Analytics dashboard
+
+  ## Installation & Setup
+
+Follow these steps to run the project locally.
+
+### Clone the repository
+
+```bash
+git clone https://github.com/sophiarapaka/careerflow-ai.git
+cd careerflow-ai
+```
+
+### Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Apply migrations
+
+```bash
+python manage.py makemigrations accounts jobs resumes
+python manage.py migrate
+```
+
+### Load sample job data
+
+```bash
+python manage.py load_sample_jobs
+```
+
+### Create an admin account
+
+```bash
+python manage.py createsuperuser
+```
+
+### Run the development server
+
+```bash
+python manage.py runserver
+```
+
+Open your browser and visit:
+
+`http://127.0.0.1:8000/`
+
